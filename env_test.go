@@ -14,7 +14,9 @@
 package env
 
 import (
+	"errors"
 	"os"
+	"strconv"
 	"testing"
 	"time"
 )
@@ -59,6 +61,10 @@ type ValidStruct struct {
 	Float32 float32 `env:"FLOAT32"`
 }
 
+type InvalidStruct struct {
+	BadFloat float64 `env:"BAD_FLOAT"`
+}
+
 type UnsupportedStruct struct {
 	Timestamp time.Time `env:"TIMESTAMP"`
 }
@@ -96,6 +102,9 @@ func TestUnmarshal(t *testing.T) {
 		"TYPE_DURATION":    "5s",
 		"FLOAT":            "3.12",
 		"FLOAT32":			"1.23",
+	}
+	environ2 := map[string]string{
+		"BAD_FLOAT": "aaaaa",
 	}
 
 	var validStruct ValidStruct
@@ -154,6 +163,12 @@ func TestUnmarshal(t *testing.T) {
 		t.Errorf("Expected field '%s' to exist but missing", "EXTRA")
 	} else if v != "extra" {
 		t.Errorf("Expected field value to be '%s' but got '%s'", "extra", v)
+	}
+
+	var invalidStruct InvalidStruct
+	err = Unmarshal(environ2, &invalidStruct)
+	if err == nil && errors.Is(err, &strconv.NumError{}) {
+		t.Errorf("Expected error but got '%s'", err)
 	}
 }
 
