@@ -54,6 +54,8 @@ type ValidStruct struct {
 
 	// time.Duration is supported
 	Duration time.Duration `env:"TYPE_DURATION"`
+
+	Float float64 `env:"FLOAT"`
 }
 
 type UnsupportedStruct struct {
@@ -91,6 +93,7 @@ func TestUnmarshal(t *testing.T) {
 		"npm_config_cache": "first",
 		"NPM_CONFIG_CACHE": "second",
 		"TYPE_DURATION":    "5s",
+		"FLOAT":            "3.12",
 	}
 
 	var validStruct ValidStruct
@@ -129,6 +132,10 @@ func TestUnmarshal(t *testing.T) {
 
 	if validStruct.Duration != 5*time.Second {
 		t.Errorf("Expected field value to be '%s' but got '%s'", "5s", validStruct.Duration)
+	}
+
+	if validStruct.Float != 3.12 {
+		t.Errorf("Expected field value to be '%v' but got '%v'", 3.12, validStruct.Float)
 	}
 
 	v, ok := environ["HOME"]
